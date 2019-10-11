@@ -1,0 +1,98 @@
+---
+title: "cols"
+author: "Graeme Grimes"
+date: "20/09/2019"
+output: ioslides_presentation
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+
+```{r cars, echo = TRUE}
+#hdat<-sapply(1:100,function(x){fra=sample(seq(10,80,by = 10),1);rnorm(n=100,mean=sample(1:3,1))+c(rep(0,fra),rnorm(100-fra,mean=2))})
+#saveRDS(hdat,file="hdat.rds")
+suppressPackageStartupMessages(require(pals))
+suppressPackageStartupMessages(require(fields))
+suppressPackageStartupMessages(require(dichromat))
+suppressPackageStartupMessages(require(colorspace))
+suppressPackageStartupMessages(require(prismatic))
+suppressPackageStartupMessages(require(pheatmap))
+suppressPackageStartupMessages(require(seriation))
+suppressPackageStartupMessages(require(circlize))
+suppressPackageStartupMessages(require(plotly))
+
+hdat<-readRDS("hdat.rds")
+selectInput("pal", label = "pals",
+              choices = ls("package:pals"), selected = "viridis")
+cb<-c("none","deutan", "protan", "tritan")
+selectInput("cb", label = "cb",
+              choices = cb, selected = "none")
+sliderInput("desaturate", label = "desaturate",
+              min = 0, max = 1, value = 0, step = 0.1)
+sliderInput("numcol", label = "numcol",
+              min = 0, max = 100, value = 100, step = 1)
+```
+
+```{r}
+
+```
+
+
+## Slide with Plot
+
+```{r pressure}
+renderPlot({
+  palette<-clr_desaturate(get(input$pal)(input$numcol),input$desaturate)
+  if(input$cb=="none"){
+  image.plot(volcano,col = palette)}
+  else{
+    image.plot(volcano,col = dichromat(palette,input$cb))
+  }
+})
+
+
+
+
+renderPlot({
+  palette<-clr_desaturate(get(input$pal)(input$numcol),input$desaturate)
+  if(input$cb=="none"){
+   pheatmap(hdat,col = palette)}
+  else{
+    pheatmap(hdat,col = dichromat(palette,input$cb))
+  }
+})
+
+
+# renderPlot({
+#   palette<-clr_desaturate(get(input$pal)(input$numcol),input$desaturate)
+#   order <- c(
+#    seriate(dist(hdat, "minkowski", p = 1)),
+#    seriate(dist(t(hdat), "minkowski", p = 1))
+#  )
+#   sf<-colorRamp2(seq(0.1, 0.8,by=0.7/(input$numcol-1)), palette)
+#   palette<-clr_desaturate(get(input$pal)(input$numcol),input$desaturate)
+#   bertinplot(hdat,options=list(shading = TRUE,shading.function=sf,panel.function=panel.squares),order = order)
+# })
+
+
+renderPlot({
+   palette<-clr_desaturate(get(input$pal)(input$numcol),input$desaturate)
+  pal.test(palette)
+})
+renderPlot({
+   palette<-clr_desaturate(get(input$pal)(input$numcol),input$desaturate)
+ pal.safe(palette)
+})
+renderPlot({
+   palette<-clr_desaturate(get(input$pal)(input$numcol),input$desaturate)
+  q4<-palette
+  demoplot(q4, "bar")
+  hclplot(q4)
+  specplot(q4, type = "o")
+})
+```
+
